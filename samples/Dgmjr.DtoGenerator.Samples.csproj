@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DefineConstants>$(DefineConstants);CodeGeneration</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+   <PackageReference Include="Dgmjr.Primitives" />
+   <!-- <ProjectReference Include="../ai-generated/Dgmjr.DtoGenerator.AiGenerated.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" /> -->
+   <SourceGenerator Include="Dgmjr.DtoGenerator.AiGenerated" />
+  </ItemGroup>
+</Project>

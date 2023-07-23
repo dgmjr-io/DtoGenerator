@@ -1,0 +1,29 @@
+<!--
+ * Dgmjr.DtoGenerator.Samples copy.csproj
+ * 
+ *   Created: 2023-01-06-01:40:51
+ *   Modified: 2023-01-06-01:40:51
+ * 
+ *   Author: David G. Moore, Jr. <david@dgmjr.io>
+ *   
+ *   Copyright © 2022-2023 David G. Moore, Jr., All Rights Reserved
+ *      License: MIT (https://opensource.org/licenses/MIT)
+-->
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+   <PackageReference Include="Dgmjr.Primitives" />
+
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
+    <PackageReference Include="Microsoft.CodeAnalysis" VersionOverride="4.4.0" />
+    <PackageReference Include="Microsoft.CSharp" VersionOverride="4.5.0" />
+
+    <Reference Include="JustinWriesCode.CodeGeneration.DtoGenerator" HintPath="../lib/JustinWriesCode.CodeGeneration.DtoGenerator.dll" />
+  </ItemGroup>
+</Project>

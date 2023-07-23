@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <IncludeInSolutionFile>true</IncludeInSolutionFile>
+        <ProjectGuid>a4ecc82e-b37d-4643-94c3-b9efa1a54f86</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" />
+        <PackageReference Include="ThisAssembly.AssemblyInfo" />
+        <PackageReference Include="System.ComponentModel.Usings" />
+        <PackageReference Include="Dgmjr.CodeGeneration.Extensions.TypeSymbolExtensions" />
+        <PackageReference Include="Dgmjr.CodeGeneration.Extensions.SyntaxNodeExtensions" IncludeAssets="All" ExcludeAssets="ContentFiles" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="./Resources/*" />
+        <EmbeddedResource Include="./Resources/**/*" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageFile Include="$(OutputPath)/*.dll" PackagePath="analyzers/dotnet/cs/$(TargetFramework)/%(Filename)%(Extension)" Visible="false" />
+    </ItemGroup>
+</Project>
