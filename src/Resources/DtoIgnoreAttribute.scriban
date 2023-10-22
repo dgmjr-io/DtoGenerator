@@ -1,0 +1,20 @@
+using Dgmjr.DtoGenerator;
+
+{{ CompilerGeneratedAttributes }}
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class DtoIgnoreAttribute : Attribute
+{
+
+}
+
+{{ CompilerGeneratedAttributes }}
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class DtoIncludeAttribute : Attribute
+{
+    public DtoIncludeAttribute(DtoType types)
+    {
+        Types = types;
+    }
+
+    public DtoType Types { get; }
+}

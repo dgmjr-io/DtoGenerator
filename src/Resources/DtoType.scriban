@@ -1,0 +1,7 @@
+{{ CompilerGeneratedAttributes }}
+internal enum DtoType
+{
+    Dto = 0,
+    Insert = 1,
+    Edit = 2
+}

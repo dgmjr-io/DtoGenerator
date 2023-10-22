@@ -1,0 +1,8 @@
+[global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct, Inherited = true, AllowMultiple = false)]
+{{ CompilerGeneratedAttributes }}
+internal sealed class GenerateDtoAttribute : global::System.Attribute
+{
+    public GenerateDtoAttribute(DtoType dtoType = DtoType.Dto, DataStructureType dataStructureType = DataStructureType.RecordStruct, string? dtoTypeName = null, string? @namespace = null)
+    {
+    }
+}

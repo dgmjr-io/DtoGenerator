@@ -24,12 +24,25 @@ public partial class DtoGenerator : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(
             context =>
-                context.AddSource(GenerateDtoAttributeFilename, GenerateDtoAttributeDeclaration)
+                context.AddSource(
+                    GenerateDtoAttributeFilename,
+                    RenderedGenerateDtoAttributeDeclaration
+                )
+        );
+        context.RegisterPostInitializationOutput(
+            context =>
+                context.AddSource(
+                    nameof(DataStructureType) + _g_cs,
+                    RenderedDataStructureTypeDeclaration
+                )
+        );
+        context.RegisterPostInitializationOutput(
+            context => context.AddSource(nameof(DtoType) + _g_cs, RenderedDtoTypeDeclaration)
         );
 
         var validDtoDeclarations = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                GenerateDtoAttributeName,
+                GenerateDtoAttribute,
                 IsEligibleType,
                 (context, _) => context
             )
@@ -42,8 +55,8 @@ public partial class DtoGenerator : IIncrementalGenerator
     private static bool IsPartialType(SyntaxNode node)
     {
         return (
-                node is ClassDeclarationSyntax cls
-                && cls.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PartialKeyword))
+                node is ClassDeclarationSyntax @class
+                && @class.Modifiers.Any(mod => mod.IsKind(SyntaxKind.PartialKeyword))
             )
             || (
                 node is StructDeclarationSyntax @struct
@@ -61,10 +74,10 @@ public partial class DtoGenerator : IIncrementalGenerator
                 node
                 is ClassDeclarationSyntax
                     or StructDeclarationSyntax
-                    or InterfaceDeclarationSyntax
+                    // or InterfaceDeclarationSyntax
             )
-            && /*IsPartialType(node) && */
-            node.GetAttribute(GenerateDtoAttributeName) != null;
+            // && IsPartialType(node)
+            && node.GetAttribute(GenerateDtoAttribute) != null;
     }
 
     private static void GenerateDtos(
@@ -75,45 +88,32 @@ public partial class DtoGenerator : IIncrementalGenerator
         ) values
     )
     {
-        (
-            Compilation compilation,
-            ImmutableArray<GeneratorAttributeSyntaxContext> generateDtoTypes
-        ) = values;
+        (var _, var generateDtoTypes) = values;
         // Generate code for each type
         foreach (var generateDtoType in generateDtoTypes)
         {
-            var dtoAttribute = generateDtoType.TargetSymbol
-                .GetAttributes()
-                .Single(attr => attr.AttributeClass.MetadataName.Equals(GenerateDtoAttributeName));
-            var dtoType =
-                dtoAttribute.NamedArguments.SingleOrDefault(arg => arg.Key == "dtoType").Value.Value
-                    as DtoType?
-                ?? DtoType.Dto;
+            var dtoAttribute = generateDtoType.TargetSymbol.GetAttribute(GenerateDtoAttribute));
+            var dtoType = dtoAttribute.GetConstructorArgument<DtoType?>(0) ?? DtoType.Dto;
             var dataStructureType =
-                dtoAttribute.NamedArguments
-                    .SingleOrDefault(arg => arg.Key == "dataStructureType")
-                    .Value.Value as DataStructureType?
+                dtoAttribute.GetConstructorArgument<DataStructureType?>(1)
                 ?? DataStructureType.RecordStruct;
             var dtoTypeName =
-                dtoAttribute.NamedArguments
-                    .SingleOrDefault(arg => arg.Key == "dtoTypeName")
-                    .Value.Value as string
-                ?? $"{generateDtoType.TargetSymbol.Name}{dtoType}{(dtoType is not DtoType.Dto ? "Dto" : "")}";
+                dtoAttribute.GetConstructorArgument<string>(2)
+                ?? $"{generateDtoType.TargetSymbol.Name}{dtoType}{(dtoType is not DtoType.Dto ? Dto : "")}";
             var @namespace =
-                dtoAttribute.NamedArguments
-                    .SingleOrDefault(arg => arg.Key == "@namespace")
-                    .Value.Value as string
-                ?? $"{generateDtoType.TargetSymbol.ContainingNamespace}.Dtos";
+                dtoAttribute.GetConstructorArgument<string>(3)
+                ?? $"{generateDtoType.TargetSymbol.ContainingNamespace}.{Dtos}";
 
             if (
-                (generateDtoType.TargetSymbol as INamedTypeSymbol)?.TypeKind
-                is /*TypeKind.Interface or*/
-                TypeKind.Enum
+                generateDtoType.TargetSymbol is INamedTypeSymbol
+                {
+                    TypeKind: TypeKind.Interface or TypeKind.Enum
+                }
             )
             {
                 context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        new DiagnosticDescriptor(
+                    Diag.Create(
+                        new DDesc(
                             "DTO001",
                             "Invalid type",
                             "GenerateDtoAttribute can only decorate classes and structs",
@@ -121,7 +121,7 @@ public partial class DtoGenerator : IIncrementalGenerator
                             DiagnosticSeverity.Error,
                             true
                         ),
-                        Location.Create(
+                        Loc.Create(
                             generateDtoType.TargetNode.SyntaxTree,
                             generateDtoType.TargetNode.Span
                         )
@@ -142,25 +142,24 @@ public partial class DtoGenerator : IIncrementalGenerator
                         && !prop.GetAttributes()
                             .Any(
                                 attr =>
-                                    attr.AttributeClass.Name == "IgnoreDtoPropertyAttribute"
-                                    || attr.AttributeClass.Name == "KeyAttribute"
+                                    attr.AttributeClass.Name == DtoIgnoreAttribute
+                                    || attr.AttributeClass.Name == nameof(KeyAttribute)
                             )
                 )
                 .Select(prop =>
                 {
                     var isKey = prop.GetAttributes()
-                        .Any(attr => attr.AttributeClass.Name == "KeyAttribute");
+                        .Any(attr => attr.AttributeClass.Name == nameof(KeyAttribute));
                     var databaseGeneratedAttribute = prop.GetAttributes()
                         .SingleOrDefault(
-                            attr => attr.AttributeClass.Name == "DatabaseGeneratedAttribute"
+                            attr => attr.AttributeClass.Name == nameof(DatabaseGeneratedAttribute)
                         );
                     var hasDatabaseGeneratedAttribute =
                         databaseGeneratedAttribute?.ConstructorArguments.Length == 1
                         && (
-                            databaseGeneratedAttribute.ConstructorArguments[0].Value
-                                as DatabaseGeneratedOption?
-                            ?? DatabaseGeneratedOption.None
-                        ) != DatabaseGeneratedOption.None;
+                            databaseGeneratedAttribute.ConstructorArguments[0].Value as DbGen?
+                            ?? DbGen.None
+                        ) != DbGen.None;
                     var isReadOnly = prop.IsReadOnly;
                     var isRequired = prop.IsRequired;
                     var ignore =
@@ -168,7 +167,7 @@ public partial class DtoGenerator : IIncrementalGenerator
                         && (isKey || hasDatabaseGeneratedAttribute);
                     var attributes = new[]
                     {
-                        isRequired ? SyntaxGenerator.ParseTypeName("RequiredAttribute") : nulll
+                        isRequired ? SyntaxFactory.ParseTypeName(nameof(RequiredAttribute)) : null
                     }.WhereNotNull();
                     return (prop, ignore);
                 })
@@ -472,40 +471,5 @@ public partial class DtoGenerator : IIncrementalGenerator
             );
 
         return mappingMethod;
-    }
-}
-
-internal static class SyntaxNodeExtensions
-{
-    public static AttributeSyntax? GetAttribute(
-        this SyntaxNode syntaxNode,
-        string attributeMetadataName
-    )
-    {
-        SyntaxList<AttributeListSyntax> attributeLists;
-        if (syntaxNode is BaseTypeDeclarationSyntax tds)
-        {
-            attributeLists = tds.AttributeLists;
-        }
-        else if (syntaxNode is BaseFieldDeclarationSyntax fds)
-        {
-            attributeLists = fds.AttributeLists;
-        }
-        else if (syntaxNode is BaseMethodDeclarationSyntax mds)
-        {
-            attributeLists = mds.AttributeLists;
-        }
-        else if (syntaxNode is BasePropertyDeclarationSyntax pds)
-        {
-            attributeLists = pds.AttributeLists;
-        }
-        else
-        {
-            attributeLists = SyntaxFactory.List<AttributeListSyntax>();
-        }
-
-        return attributeLists
-            .SelectMany(x => x.Attributes)
-            .FirstOrDefault(x => x.Name.ToString() == attributeMetadataName);
     }
 }

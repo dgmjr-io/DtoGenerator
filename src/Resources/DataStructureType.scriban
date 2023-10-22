@@ -1,0 +1,8 @@
+{{ CompilerGeneratedAttributes }}
+internal enum DataStructureType
+{
+    RecordStruct = 0,
+    RecordClass = 1,
+    Class = 2,
+    Struct = 3
+}

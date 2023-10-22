@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <Using Include="Scriban" />
+    <Using Include="Scriban.Template" Static="true" />
+    <Using Include="Dgmjr.DtoGenerator.Constants" Static="true" />
+    <Using Include="Microsoft.CodeAnalysis.Diagnostic" Alias="Diag" />
+    <Using Include="Microsoft.CodeAnalysis.DiagnosticDescriptor" Alias="DDesc" />
+    <Using Include="Microsoft.CodeAnalysis.Location" Alias="Loc" />
+  </ItemGroup>
+</Project>
