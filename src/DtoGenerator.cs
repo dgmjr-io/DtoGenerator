@@ -74,7 +74,7 @@ public partial class DtoGenerator : IIncrementalGenerator
                 node
                 is ClassDeclarationSyntax
                     or StructDeclarationSyntax
-                    // or InterfaceDeclarationSyntax
+            // or InterfaceDeclarationSyntax
             )
             // && IsPartialType(node)
             && node.GetAttribute(GenerateDtoAttribute) != null;
