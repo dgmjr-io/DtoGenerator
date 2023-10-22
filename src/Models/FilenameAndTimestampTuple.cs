@@ -6,8 +6,8 @@ namespace Dgmjr.DtoGenerator;
 internal readonly record struct FilenameAndTimestampTuple(string Filename)
 {
     public string Timestamp => DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.ffffzzzZ");
-    public string ToolName => Constants.AssemblyName;
-    public string ToolVersion => Constants.AssemblyVersion;
-    public string CompilerGeneratedAttributes => Constants.CompilerGeneratedAttributes;
+public string ToolName => Constants.AssemblyName;
+public string ToolVersion => Constants.AssemblyVersion;
+public string CompilerGeneratedAttributes => Constants.CompilerGeneratedAttributes;
 }
 #pragma warning restore
